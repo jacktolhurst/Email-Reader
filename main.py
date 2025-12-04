@@ -48,17 +48,20 @@ def CreateTXTFile(location:str, name:str, text:str) -> str:
         print(err)
         return None
 
-def AddToStartup():
-    startup_folder = os.path.join(
-        os.getenv('APPDATA'), 
-        'Microsoft\\Windows\\Start Menu\\Programs\\Startup'
-    )
-    
-    script_path = os.path.abspath(__file__)
-    bat_path = os.path.join(startup_folder, "email_checker.bat")
-    
-    with open(bat_path, 'w') as f:
-        f.write(f'@echo off\npython "{script_path}"\n')
+def CreateBinaryFile(location:str, name:str, data:bytes, type:str) -> str:
+    try:
+        fileLocation = os.path.join(location, SantiseNameForFile(name) + "." + type)
+        
+        if not os.path.exists(fileLocation):
+            with open(fileLocation, 'wb') as newFile:
+                newFile.write(data)
+            return fileLocation  
+        else:
+            print("A file by that name already exists")
+            return None
+    except Exception as err:
+        print(err)
+        return None
 
 def SantiseNameForFile(name:str) -> str:
     return name.replace(":", "-").replace("/", "-").replace("\\", "-")
@@ -71,8 +74,6 @@ def Startup():
     folder = GetFolderInteractive()
 
     userInformation = GetUserInformation()
-    
-    AddToStartup()
     
     with open("data.json", 'w') as file:
 
@@ -95,11 +96,15 @@ def Checkmessages():
         passcode = data["Passcode"]
         checkUsername = data["CheckUsername"]
     
-    messages = FindEmailWithUsername(username, passcode, checkUsername,depth=20)
+    messages = FindEmailWithUsername(username, passcode, checkUsername,depth=2)
 
     for message in messages:
         name =  message.date_str + " " + message.from_
         print(CreateTXTFile(folder, name, message.text or HTMLToText(message.html)))
+        
+        for attribute in message.attachments:
+            type = os.path.splitext(attribute.filename)[1].lstrip('.') 
+            print(CreateBinaryFile(folder, name + " " + type, attribute.payload, type))
 
 if __name__ == "__main__":
     if not os.path.exists("data.json"):
