@@ -2,6 +2,11 @@ from imap_tools import MailBox
 import imap_tools
 import json
 import os
+import sys
+
+def GetResourcePath(relativePath:str):
+    basePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    return os.path.join(basePath, relativePath)
 
 def GetElapsedEmails(username:str, passcode:str, lastCheckedEmailUid:str) -> list[imap_tools.message.MailMessage]:
     elapsedEmails = []
@@ -56,7 +61,7 @@ def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], c
                 CreateBinaryFile(folder, name + " " + type, attribute.payload, type)
 
 if __name__ == "__main__":
-    with open("data.json", 'r') as file:
+    with open(GetResourcePath("data.json"), 'r') as file:
         data = json.load(file)
         
         elapsedEmails = GetElapsedEmails(data["Username"], data["Passcode"], data["LastCheckedEmailUid"])
@@ -71,6 +76,6 @@ if __name__ == "__main__":
                 "CheckUsername" : data["CheckUsername"],
                 "LastCheckedEmailUid" : elapsedEmails[0].uid
             }
-            with open("data.json", 'w') as newFile:
+            with open(GetResourcePath("data.json"), 'w') as newFile:
                 json.dump(saveData, newFile, indent=4)
         

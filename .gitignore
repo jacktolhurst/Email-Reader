@@ -183,3 +183,4 @@ cython_debug/
 .vscode
 testing.py
 data.json
+*.exe
