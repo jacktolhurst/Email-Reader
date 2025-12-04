@@ -1,16 +1,19 @@
 from imap_tools import MailBox
 
-username = input("username: ")
-password = input("2FA Code: ")
+def FindEmailWithUsername(username:str, passcode:str, checkUserName:str, depth:int=None, reverse:bool=True):
+    with MailBox('imap.gmail.com').login(username, passcode) as mailbox:
+        for msg in mailbox.fetch(reverse=reverse, limit=depth):
+            if  msg.from_ == checkUserName:
+                print(msg.from_, msg.subject)
 
-checkUserName = input("Username to check: ")
-
-depth = int(input("Email depth: "))
-
-
-# Get date, subject and body len of all emails from INBOX folder
-with MailBox('imap.gmail.com').login(username, password) as mailbox:
+def GetUserInformation() -> tuple[str, str, str]:
+    username = input("username: ")
     
-    for msg in mailbox.fetch(reverse=True, limit=depth):
-        if  msg.from_ == checkUserName:
-            print(msg.from_, msg.subject)
+    passcode = input("2FA Code: ")
+    
+    checkUserName = input("Username to check: ")
+    
+    return username, passcode, checkUserName
+
+FindEmailWithUsername(*GetUserInformation())
+
