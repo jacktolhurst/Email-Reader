@@ -78,11 +78,11 @@ def Startup():
     with open("data.json", 'w') as file:
 
         saveData = {
-            "Started" : True,
             "Folder" : folder,
             "Username" : userInformation[0],
             "Passcode" : userInformation[1],
-            "CheckUsername" : userInformation[2]
+            "CheckUsername" : userInformation[2],
+            "LastCheckedEmailUid" : "None"
         }
 
         json.dump(saveData, file, indent=4)
@@ -100,11 +100,11 @@ def Checkmessages():
 
     for message in messages:
         name =  message.date_str + " " + message.from_
-        print(CreateTXTFile(folder, name, message.text or HTMLToText(message.html)))
+        CreateTXTFile(folder, name, message.text or HTMLToText(message.html))
         
         for attribute in message.attachments:
             type = os.path.splitext(attribute.filename)[1].lstrip('.') 
-            print(CreateBinaryFile(folder, name + " " + type, attribute.payload, type))
+            CreateBinaryFile(folder, name + " " + type, attribute.payload, type)
 
 if __name__ == "__main__":
     if not os.path.exists("data.json"):
