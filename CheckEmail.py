@@ -1,4 +1,5 @@
 from imap_tools import MailBox
+from win10toast import ToastNotifier
 import imap_tools
 import json
 import os
@@ -60,7 +61,19 @@ def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], c
                 type = os.path.splitext(attribute.filename)[1].lstrip('.') 
                 CreateBinaryFile(folder, name + " " + type, attribute.payload, type)
 
+def CreateNotification(notificationName:str, notificationBody:str, duration:int, *, iconPath:str=None, threaded:bool=True):
+    toast = ToastNotifier()
+    
+    toast.show_toast(
+        notificationName,
+        notificationBody,
+        duration = duration,
+        icon_path = iconPath,
+        threaded = threaded,
+    )
+
 if __name__ == "__main__":
+    
     with open(GetResourcePath("data.json"), 'r') as file:
         data = json.load(file)
         
@@ -78,4 +91,5 @@ if __name__ == "__main__":
             }
             with open(GetResourcePath("data.json"), 'w') as newFile:
                 json.dump(saveData, newFile, indent=4)
-        
+                
+            CreateNotification("Some emails have been downloaded", "Downloaded " + str(len(elapsedEmails)) + " emails.", 20)
