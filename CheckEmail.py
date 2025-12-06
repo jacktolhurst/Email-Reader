@@ -50,9 +50,13 @@ def CreateBinaryFile(location:str, name:str, data:bytes, type:str) -> str:
     except:
         return None
 
-def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], checkUsername:str, folder:str):
+def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], checkUsername:str, folder:str) -> list[imap_tools.message.MailMessage]:
+    downloadedEmails = []
+    
     for email in emails:
         if  email.from_ == checkUsername:
+            downloadedEmails.append(email)
+            
             name =  email.date_str + " " + email.from_
             
             CreateTXTFile(folder, name, email.text or email.html)
@@ -60,6 +64,8 @@ def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], c
             for attribute in email.attachments:
                 type = os.path.splitext(attribute.filename)[1].lstrip('.') 
                 CreateBinaryFile(folder, name + " " + type, attribute.payload, type)
+    
+    return downloadedEmails
 
 def CreateNotification(notificationName:str, notificationBody:str, duration:int, *, iconPath:str=None, threaded:bool=True):
     toast = ToastNotifier()
@@ -80,7 +86,7 @@ if __name__ == "__main__":
         elapsedEmails = GetElapsedEmails(data["Username"], data["Passcode"], data["LastCheckedEmailUid"])
         
         if elapsedEmails:
-            InstallEmailWithGivenUsername(elapsedEmails, data["CheckUsername"], data["Folder"])
+            downloadedEmails = InstallEmailWithGivenUsername(elapsedEmails, data["CheckUsername"], data["Folder"])
             
             saveData = {
                 "Folder" : data["Folder"],
@@ -92,4 +98,4 @@ if __name__ == "__main__":
             with open(GetResourcePath("data.json"), 'w') as newFile:
                 json.dump(saveData, newFile, indent=4)
                 
-            CreateNotification("Some emails have been downloaded", "Downloaded " + str(len(elapsedEmails)) + " emails.", 20)
+            CreateNotification("Some emails have been downloaded", "Downloaded " + str(len(downloadedEmails)) + " emails.", 20, threaded=False)
