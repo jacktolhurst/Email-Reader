@@ -1,5 +1,5 @@
 from imap_tools import MailBox
-from win10toast import ToastNotifier
+from winotify import Notification, audio
 import imap_tools
 import json
 import os
@@ -67,16 +67,18 @@ def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], c
     
     return downloadedEmails
 
-def CreateNotification(notificationName:str, notificationBody:str, duration:int, *, iconPath:str=None, threaded:bool=True):
-    toast = ToastNotifier()
-    
-    toast.show_toast(
-        notificationName,
-        notificationBody,
-        duration = duration,
-        icon_path = iconPath,
-        threaded = threaded,
+def CreateNotification(notificationName: str, notificationBody: str, duration: int, *, iconPath: str = None, threaded: bool = True):
+    toast = Notification(
+        app_id="Email Checker",
+        title=notificationName,
+        msg=notificationBody,
+        duration="short" if duration <= 10 else "long"
     )
+    
+    if iconPath:
+        toast.set_icon(iconPath)
+    
+    toast.show()
 
 if __name__ == "__main__":
     
