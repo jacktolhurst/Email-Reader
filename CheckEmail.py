@@ -1,5 +1,5 @@
 from imap_tools import MailBox
-from winotify import Notification, audio
+from winotify import Notification
 import imap_tools
 import json
 import os

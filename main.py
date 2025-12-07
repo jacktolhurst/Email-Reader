@@ -10,20 +10,20 @@ def CreateExe(scriptPath: str, outputName: str) -> str:
     try:
         import PyInstaller
     except ImportError:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"], 
+                            stdout=subprocess.DEVNULL, 
+                            stderr=subprocess.DEVNULL)
     
     exe_name = outputName if outputName else os.path.splitext(os.path.basename(scriptPath))[0]
     exe_path = os.path.abspath(f"./{exe_name}.exe")
-
     cmd = [sys.executable, "-m", "PyInstaller", "--onefile", "--noconsole"]
     cmd.extend(["--name", exe_name])
     cmd.extend(["--distpath", "."])
     cmd.extend(["--workpath", "./build"])
     cmd.extend(["--specpath", "."])
     cmd.append(scriptPath)
-
-    subprocess.run(cmd)
-
+    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    
     return exe_path
 
 def CreateShortcut(targetPath: str, shortcutPath: str) -> str:
