@@ -67,7 +67,7 @@ def InstallEmailWithGivenUsername(emails:list[imap_tools.message.MailMessage], c
     
     return downloadedEmails
 
-def CreateNotification(notificationName: str, notificationBody: str, duration: int, *, iconPath: str = None, threaded: bool = True):
+def CreateNotification(notificationName:str, notificationBody:str, duration:int, *, iconPath:str = None):
     toast = Notification(
         app_id="Email Checker",
         title=notificationName,
@@ -100,4 +100,7 @@ if __name__ == "__main__":
             with open(GetResourcePath("data.json"), 'w') as newFile:
                 json.dump(saveData, newFile, indent=4)
                 
-            CreateNotification("Some emails have been downloaded", "Downloaded " + str(len(downloadedEmails)) + " emails.", 20, threaded=False)
+            CreateNotification("Some of " + data["CheckUsername"] + "'s emails have been downloaded", "Downloaded " + str(len(downloadedEmails)) + " emails into " + data["Folder"], 20)
+        
+        else:
+            CreateNotification("No new " + data["CheckUsername"] + " emails where found", " ", 20)
